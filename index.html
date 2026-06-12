@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Label Rankings From Multi-Annotator Disagreement</title>
+  <style>
+    :root {
+      --ink: #14212b;
+      --muted: #5d6875;
+      --line: #dbe2ea;
+      --paper: #ffffff;
+      --bg: #f4f7fb;
+      --teal: #2f6f73;
+      --wine: #8f3d56;
+      --violet: #5d5a9c;
+      --gold: #d49b3d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+
+    .page {
+      max-width: none;
+      margin: 0 auto;
+      padding: 0 22px 46px;
+    }
+
+    .hero {
+      min-height: 68vh;
+      display: flex;
+      align-items: stretch;
+      margin: 0 -22px 22px;
+    }
+
+    .hero-main {
+      width: 100%;
+      min-height: 68vh;
+      padding: 56px clamp(24px, 7vw, 96px);
+      border-radius: 0;
+      background: #18313a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border: 0;
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(260px, 0.7fr);
+      gap: clamp(18px, 3vw, 42px);
+      align-items: center;
+    }
+
+    .hero-figure {
+      margin: 0;
+      justify-self: start;
+      width: min(100%, 380px);
+    }
+
+    .hero-figure img {
+      width: 100%;
+      display: block;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: #f2cc80;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.04;
+      max-width: 780px;
+    }
+
+    .hero-main p {
+      max-width: 780px;
+      margin: 18px 0 0;
+      font-size: 18px;
+      color: #e6eef0;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 7px;
+      color: #d8e5e8;
+      font-size: 14px;
+    }
+
+    .hero-side {
+      border-radius: 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+    }
+
+    .hero-side img {
+      width: 100%;
+      min-height: 270px;
+      object-fit: cover;
+      background: #e9eef4;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .caption {
+      padding: 18px;
+    }
+
+    .caption strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .caption span {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 25px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 9px;
+    }
+
+    li {
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex: 0 0 auto;
+      margin-top: 8px;
+    }
+
+    .tech-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .tech-list span {
+      color: var(--muted);
+      font-size: 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #fbfcfe;
+    }
+
+    .video {
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1px dashed #a9b4c2;
+      background: #fbfcfe;
+      border-radius: 8px;
+      color: var(--muted);
+      padding: 22px;
+    }
+
+    .video strong {
+      display: block;
+      color: var(--ink);
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .outcomes {
+      margin-top: 8px;
+    }
+
+    .outcome-intro {
+      margin-bottom: 18px;
+    }
+
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .figure-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .figure-card img {
+      width: 100%;
+      height: 320px;
+      display: block;
+      object-fit: contain;
+      background: white;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .figure-card div {
+      padding: 16px;
+      flex: 1;
+    }
+
+    .figure-card p {
+      margin: 0;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 6px 0 0;
+    }
+
+    @media (max-width: 860px) {
+      .two,
+      .three,
+      .figure-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-main {
+        min-height: 62vh;
+      }
+
+      .hero-content {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-figure {
+        justify-self: start;
+        max-width: 320px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="hero-content">
+          <div>
+            <p class="eyebrow">Graduation Project</p>
+            <h1>Learning Label Rankings From<br>Multi-Annotator Disagreement</h1>
+          </div>
+          <figure class="hero-figure">
+            <img src="images/annotator_figure.png" alt="Annotator disagreement and label ranking overview">
+          </figure>
+        </div>
+      </div>
+    </section>
+    <section class="grid two">
+      <div class="card">
+        <h2>Project Team</h2>
+        <ul>
+          <li><span><strong>Student:</strong> Ömer ERDAĞ</span></li>
+          <li><span><strong>Academic Advisor:</strong> Prof.Dr. Gözde ÜNAL</span></li>
+        </ul>
+
+      </div>
+
+      <div class="card">
+        <h2>Project Description</h2>
+          <p>
+            This project focuses on learning the underlying ground-truth label ranking from
+            subjective and inconsistent multi-annotator rankings. Instead of directly trusting
+            a single annotator or averaging all annotations, the model learns from annotator
+            disagreement to recover a more reliable latent ranking signal.
+          </p>
+          <p>
+            The framework predicts latent label significance scores and uses learned annotator
+            reliability and class-specific bias parameters to produce annotator-specific
+            predictions. It is trained with a joint classification and ranking objective and
+            evaluated on both synthetic and Scenery datasets.
+          </p>
+      </div>
+    </section>
+
+    <section class="grid two">
+      <div class="card">
+        <h2>Technologies Used</h2>
+        <div class="tech-list">
+          <span>Python</span>
+          <span>NumPy</span>
+          <span>PyTorch</span>
+          <span>torchvision</span>
+          <span>Jupyter</span>
+          <span>Matplotlib</span>
+          <span>Weights and Biases</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Presentation</h2>
+        <div class="video">
+          <div>
+            <strong>2-minute YouTube summary video</strong>
+            <span>Paste the YouTube link or embed iframe here after uploading the presentation video.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card outcomes">
+      <h2>Project Outcomes</h2>
+      <p class="outcome-intro">
+        Our results show that the proposed annotator-aware ranking model can learn reliable
+        latent rankings from noisy multi-annotator data. The evaluations demonstrate success
+        in parameter recovery, ranking performance, and uncertainty-based ambiguity analysis.
+      </p>
+
+      <div class="figure-grid">
+        <div class="figure-card">
+          <img src="images/alpha_comparison.png" alt="Alpha reliability recovery">
+          <div>
+            <h3>Annotator Reliability Recovery</h3>
+            <p>
+              The recovered alpha values closely follow the true annotator reliability
+              values from the simulator. This shows that our method successfully learns
+              which annotators are more reliable.
+            </p>
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="images/beta_scatter.png" alt="Annotator bias recovery">
+          <div>
+            <h3>Annotator Bias Recovery</h3>
+            <p>
+              The learned beta parameters align with the true synthetic annotator biases.
+              This result shows that our method can capture systematic label-specific
+              bias.
+            </p>
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="images/synthetic_performance_comparison.png" alt="Synthetic dataset performance">
+          <div>
+            <h3>Performance On Synthetic Dataset</h3>
+            <p>
+              The synthetic dataset results show strong global ranking performance and
+              meaningful annotator-specific prediction quality. This confirms that the
+              model learns both the shared ranking structure and annotator behavior.
+            </p>
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="images/true_margin_vs_uncertainty_combined.png" alt="True ambiguity analysis">
+          <div>
+            <h3>True Ambiguity Analysis</h3>
+            <p>
+              The ambiguity analysis shows that model uncertainty increases when true
+              label margins are small. This supports that our uncertainty estimates
+              reflect the inherent difficulty of the ranking problem.
+            </p>
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="images/annotator_disagreement_vs_uncertainty_combined.png" alt="Annotator disagreement analysis">
+          <div>
+            <h3>Annotator Disagreement Analysis</h3>
+            <p>
+              The disagreement analysis shows a positive relationship between annotator
+              disagreement and model uncertainty. This indicates that our method captures
+              human ambiguity in the ranking annotations.
+            </p>
+          </div>
+        </div>
+
+        <div class="figure-card">
+          <img src="images/overall_model_comparison.png" alt="Scenery dataset performance">
+          <div>
+            <h3>Performance On Scenery Dataset</h3>
+            <p>
+              On scenery images, Our Method improves over the UniMLR baseline in both
+              global and ranker-specific evaluations. These results demonstrate the benefit
+              of ranking with annotator-aware modelling.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Learning Label Rankings From Multi-Annotator Disagreement. Static one-page project summary.
+    </footer>
+  </div>
+</body>
+</html>
