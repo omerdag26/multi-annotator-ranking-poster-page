@@ -240,18 +240,50 @@
       display: grid;
       place-items: center;
       text-align: center;
-      border: 1px dashed #a9b4c2;
+      border: 1px solid var(--line);
       background: #fbfcfe;
       border-radius: 8px;
       color: var(--muted);
-      padding: 22px;
+      padding: 0;
+      overflow: hidden;
     }
 
-    .video strong {
+    .video iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
       display: block;
-      color: var(--ink);
-      font-size: 20px;
-      margin-bottom: 8px;
+      border: 0;
+    }
+
+    .video-thumb {
+      position: relative;
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #111827;
+      overflow: hidden;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .play-button {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 68px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.72);
+      color: white;
+      font-size: 24px;
+      transform: translate(-50%, -50%);
     }
 
     .outcomes {
@@ -387,10 +419,13 @@
       <div class="card">
         <h2>Presentation</h2>
         <div class="video">
-          <div>
-            <strong>2-minute YouTube summary video</strong>
-            <span>Paste the YouTube link or embed iframe here after uploading the presentation video.</span>
-          </div>
+          <a class="video-thumb" href="https://youtu.be/sZ98hpAFsNk" target="_blank" rel="noopener" aria-label="Open project summary video on YouTube">
+            <img
+              src="https://img.youtube.com/vi/sZ98hpAFsNk/maxresdefault.jpg?v=2"
+              alt="Project summary video thumbnail"
+              onerror="this.onerror=null; this.src='https://img.youtube.com/vi/sZ98hpAFsNk/sddefault.jpg?v=2';">
+            <span class="play-button">▶</span>
+          </a>
         </div>
       </div>
     </section>
